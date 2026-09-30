@@ -39,13 +39,28 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 #gate{position:fixed;inset:0;z-index:100;display:grid;place-items:center;text-align:center;overflow:hidden;
   background:radial-gradient(110% 80% at 50% 110%,#5a1633 0%,var(--ink) 62%);transition:opacity .9s ease,visibility .9s}
 #gate.gone{opacity:0;visibility:hidden;pointer-events:none}
+#gate .gbg{position:absolute;inset:0;overflow:hidden;--gx:66%;--gy:18%}
+#gate .gbg img{width:100%;height:100%;object-fit:cover;object-position:var(--gx,50%) var(--gy,30%);
+  animation:gateIn 1.6s ease both,gateKB 22s ease-out both}
+@keyframes gateIn{from{opacity:0}to{opacity:1}}
+@keyframes gateKB{from{transform:scale(1.14)}to{transform:scale(1.02)}}
+#gate .gshade{position:absolute;inset:0;background:
+  radial-gradient(115% 85% at 50% 48%,rgba(18,6,11,.42) 0%,rgba(18,6,11,.86) 100%),
+  linear-gradient(180deg,rgba(18,6,11,.5) 0%,rgba(18,6,11,.1) 38%,rgba(90,22,51,.6) 100%)}
+#gate .gin{position:relative;z-index:2;max-width:100%;padding:0 1.25rem}
 #gate .mast{font-family:var(--serif);font-weight:900;font-size:clamp(5rem,27vw,22rem);line-height:.8;letter-spacing:-.045em;
   background:linear-gradient(180deg,var(--bone) 30%,var(--blush) 70%,var(--garnet));-webkit-background-clip:text;background-clip:text;color:transparent;
   animation:mastIn 1.6s cubic-bezier(.2,.8,.2,1) both}
 @keyframes mastIn{from{letter-spacing:.25em;opacity:0;filter:blur(18px)}to{letter-spacing:-.045em;opacity:1;filter:none}}
-#gate p{margin:1.6rem auto 2.2rem;color:#d9c2c8;font-weight:300;letter-spacing:.06em}
-#enter{border:1px solid var(--blush);padding:1rem 2.8rem;border-radius:999px;letter-spacing:.16em;font-size:.95rem;transition:background .3s,color .3s}
-#enter:hover{background:var(--blush);color:var(--ink)}
+#gate p{max-width:32rem;text-wrap:balance;margin:1.6rem auto 2.2rem;color:#ecd9dc;font-weight:300;letter-spacing:.06em;text-shadow:0 2px 16px rgba(0,0,0,.7)}
+#enter{display:inline-flex;align-items:center;gap:.8rem;border:1px solid var(--blush);padding:1.05rem 2.6rem;border-radius:999px;letter-spacing:.16em;font-size:.95rem;
+  background:rgba(18,6,11,.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transition:background .3s,color .3s,transform .3s;animation:enterPulse 2.6s ease-out 2s infinite}
+#enter::after{content:"\2192";transition:transform .3s}
+#enter:hover{background:var(--blush);color:var(--ink);transform:translateY(-2px)}
+#enter:hover::after{transform:translateX(5px)}
+#enter:active{transform:scale(.97)}
+@keyframes enterPulse{0%{box-shadow:0 0 0 0 rgba(240,184,176,.5)}70%,100%{box-shadow:0 0 0 20px rgba(240,184,176,0)}}
 
 /* ================= film ================= */
 #film{position:relative;height:100svh;min-height:520px;overflow:hidden;background:#000;isolation:isolate;perspective:1700px;perspective-origin:50% 50%}
@@ -243,7 +258,7 @@ body.rec main>section:not(#film),body.rec footer,body.rec #gate,body.rec .hud,bo
 body.rec #film{height:100vh}
 
 @media (prefers-reduced-motion:reduce){
-  .grain,.scene.on .fg img{animation:none!important}
+  .grain,.scene.on .fg img,#gate .gbg img,#enter{animation:none!important}
   html{scroll-behavior:auto}
 }
 </style>
@@ -251,12 +266,25 @@ body.rec #film{height:100vh}
 <body>
 
 <div id="gate">
-  <div>
+  <div class="gbg" aria-hidden="true"><img src="assets/looks/look-6.jpg" alt="" fetchpriority="high" decoding="async"></div>
+  <div class="gshade" aria-hidden="true"></div>
+  <div class="gin">
     <div class="mast">Dessa</div>
     <p>Afterglow: eleven looks, one evening. Sound on.</p>
-    <button id="enter">Enter Afterglow</button>
+    <button id="enter" type="button">Enter Afterglow</button>
   </div>
 </div>
+<noscript><style>#gate{display:none}</style></noscript>
+<script>
+/* Wired up right here, before the big script below, so the button responds even while the page is still loading.
+   The main script picks up the request through window.__enter / window.__enterRequested. */
+(function(){var b=document.getElementById('enter'),g=document.getElementById('gate');
+  b.addEventListener('click',function(){
+    window.__enterRequested=true;g.classList.add('gone');
+    if(window.__enter)window.__enter();
+  });
+})();
+</script>
 
 <main>
 <section id="film" class="letter" aria-label="Montage film">
@@ -452,12 +480,14 @@ function startSound(){
   const pr=audio.play();           /* called directly inside the tap so iOS/Safari allow it */
   if(pr&&pr.then)pr.then(()=>{setupAnalyser();$('#mute').textContent='Sound on'}).catch(()=>{$('#mute').textContent='Tap for sound'});
 }
-$('#enter').onclick=()=>{
+function enter(){
   $('#gate').classList.add('gone');
   try{startSound()}catch(e){}       /* still inside the tap, so iOS/Safari allow audio */
   go(0);
-};
-try{$('#enter').focus({preventScroll:true})}catch(e){}
+  film.scrollIntoView({block:'start',behavior:'instant'});                         /* land on the film, wherever the page was scrolled to */
+  try{history.replaceState(null,'','#film')}catch(e){}
+}
+window.__enter=enter;if(window.__enterRequested)enter();       /* button was pressed before this script finished loading */
 audio.addEventListener('error',()=>{notice('The song could not be loaded from '+audio.currentSrc+'. Check that assets/track.mp3 was deployed.')});
 $('#mute').onclick=e=>{if(audio.paused){startSound();return}audio.muted=!audio.muted;e.target.textContent=audio.muted?'Sound off':'Sound on'};
 document.addEventListener('visibilitychange',()=>{if(document.hidden)audio.pause();else if($('#gate').classList.contains('gone')&&!audio.muted)audio.play().catch(()=>{})});
