@@ -234,7 +234,10 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 
 /* contact sheet */
 #sheet{padding:10vh clamp(1rem,5vw,4rem) 14vh;background:var(--ink)}
-#sheet h2{font-family:var(--serif);font-weight:700;font-size:clamp(1.8rem,4vw,3rem);margin-bottom:2.5rem}
+#sheet h2{font-family:var(--serif);font-weight:700;font-size:clamp(1.8rem,4vw,3rem);margin:0}
+.sheethead{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:2.5rem}
+#showbtn{border:1px solid rgba(246,237,232,.35);border-radius:999px;padding:.65rem 1.3rem;letter-spacing:.08em;font-size:.85rem;transition:border-color .3s,background .3s}
+#showbtn:hover{border-color:var(--blush);background:rgba(240,184,176,.1)}
 .grid{columns:3 260px;column-gap:1rem}
 .grid figure{break-inside:avoid;margin-bottom:1rem;position:relative;overflow:hidden;cursor:zoom-in}
 .grid img{width:100%;display:block;transition:transform .8s cubic-bezier(.2,.8,.2,1),filter .5s;filter:saturate(.92)}
@@ -242,8 +245,15 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .grid figcaption{position:absolute;left:.8rem;bottom:.6rem;font-family:var(--serif);font-style:italic;text-shadow:0 2px 10px rgba(0,0,0,.8)}
 #lb{position:fixed;inset:0;z-index:200;background:rgba(10,3,7,.95);display:none;place-items:center;cursor:zoom-out}
 #lb.on{display:grid}
-#lb img{max-width:min(94vw,1100px);max-height:84svh;box-shadow:0 30px 100px #000}
-#lb .lbcap{position:absolute;left:0;right:0;bottom:1.1rem;text-align:center;font-family:var(--serif);font-style:italic;font-size:1.1rem;pointer-events:none;text-shadow:0 2px 12px #000}
+#lb{touch-action:none}
+#lb img{max-width:min(94vw,1100px);max-height:74svh;box-shadow:0 30px 100px #000;cursor:zoom-in;transition:transform .35s ease}
+#lb img.z{transform:scale(2.3);cursor:zoom-out}
+#lb .lbplay{top:max(1rem,env(safe-area-inset-top));left:1rem}
+#lb .lbstrip{position:absolute;left:0;right:0;bottom:.8rem;display:flex;gap:.4rem;justify-content:safe center;padding:0 .8rem;overflow-x:auto}
+#lb .lbstrip button{position:static;flex:none;width:42px;height:56px;padding:0;border-radius:6px;overflow:hidden;opacity:.5;border:1px solid transparent}
+#lb .lbstrip button.cur{opacity:1;border-color:var(--blush)}
+#lb .lbstrip img{width:100%;height:100%;max-width:none;max-height:none;object-fit:cover;box-shadow:none;cursor:pointer;transition:none}
+#lb .lbcap{position:absolute;left:0;right:0;bottom:5.4rem;text-align:center;font-family:var(--serif);font-style:italic;font-size:1.1rem;pointer-events:none;text-shadow:0 2px 12px #000}
 #lb button{position:absolute;z-index:2;padding:.6rem 1rem;border:1px solid rgba(246,237,232,.35);border-radius:999px;background:rgba(18,6,11,.6);font-size:.9rem;letter-spacing:.06em;cursor:pointer}
 #lb button:hover{border-color:var(--blush)}
 #lb .lbx{top:max(1rem,env(safe-area-inset-top));right:1rem}
@@ -266,7 +276,7 @@ body.rec #film{height:100vh}
 <body>
 
 <div id="gate">
-  <div class="gbg" aria-hidden="true"><img src="assets/looks/look-6.jpg" alt="" fetchpriority="high" decoding="async"></div>
+  <div class="gbg" aria-hidden="true"><img src="assets/looks/look-6.jpg" srcset="assets/looks/look-6-s.webp 640w, assets/looks/look-6.webp 1280w" sizes="100vw" alt="" fetchpriority="high" decoding="async"></div>
   <div class="gshade" aria-hidden="true"></div>
   <div class="gin">
     <div class="mast">Dessa</div>
@@ -330,17 +340,19 @@ body.rec #film{height:100vh}
 </section>
 
 <section id="sheet" aria-label="Contact sheet">
-  <h2>Contact sheet</h2>
+  <div class="sheethead"><h2>Contact sheet</h2><button id="showbtn" type="button">Play slideshow</button></div>
   <div class="grid" id="grid"></div>
 </section>
 </main>
 
 <div id="lb" role="dialog" aria-modal="true" aria-label="Enlarged look">
   <button class="lbx" id="lbx" aria-label="Close">Close</button>
+  <button class="lbplay" id="lbplay">Play show</button>
   <button class="lbn lbp" id="lbp" aria-label="Previous look">&lsaquo;</button>
   <img alt="">
   <button class="lbn lbf" id="lbf" aria-label="Next look">&rsaquo;</button>
   <div class="lbcap" id="lbcap" aria-live="polite"></div>
+  <div class="lbstrip" id="lbstrip"></div>
 </div>
 <footer>Dessa &mdash; Afterglow &middot; <a href="video/dessa-montage.mp4" style="color:inherit">Watch the vertical cut</a></footer>
 <audio id="track" src="assets/track.mp3" loop preload="auto"></audio>
@@ -378,6 +390,10 @@ const L={
 const ORDER=[1,2,3,4,5,6,7,8,9,10,11];
 const RUNWAY_NAMES={1:'The tailored black',2:'Copper drape',3:'Denim after dark',4:'Garnet, cut close',5:'White lace',6:'Off the shoulder',7:'Embroidered maroon',8:'The quiet hour',9:'White, folded',10:'Denim, playful',11:'Black brocade'};
 
+const WID={"1": 1238, "2": 1196, "3": 1220, "4": 1280, "5": 1280, "6": 1280, "7": 1178, "8": 1380, "9": 1238, "10": 1230, "11": 1220};
+const SS=id=>`assets/looks/look-${id}-s.webp 640w, assets/looks/look-${id}.webp ${WID[id]}w`;
+const BG=id=>`url(assets/looks/bg-${id}.jpg) center/cover`;      /* tiny blurred backdrop shows while the sharp image loads */
+
 /* ---------- scene script ---------- */
 const SCENES=[
   {type:'cover',imgs:[2],tr:'punch',dur:3800},
@@ -393,7 +409,7 @@ const SCENES=[
 ];
 
 const film=$('#film'),ticks=$('#ticks');
-function fig(id,i){return `<div class="fg k${(i%3)+1}" style="--ar:${L[id].ar}"><img src="${L[id].src}" alt="${L[id].alt}"></div>`}
+function fig(id,i){return `<div class="fg k${(i%3)+1}" style="--ar:${L[id].ar};background:${BG(id)}"><img src="${L[id].src}" srcset="${SS(id)}" sizes="(max-aspect-ratio:4/5) 92vw, 60vw" alt="${L[id].alt}"></div>`}
 SCENES.forEach((s,i)=>{
   const el=document.createElement('div');el.className='scene';el.style.setProperty('--dur',s.dur+'ms');
   const bg=`<div class="bg" style="background-image:url('${L[s.imgs[0]].src.replace('look-','bg-')}')"></div>`;
@@ -503,7 +519,7 @@ function sizePanels(){
 }
 ORDER.forEach((id,i)=>{
   const p=document.createElement('div');p.className='panel';p.dataset.look=id;p.style.setProperty('--i',i);
-  p.innerHTML=`<img src="${L[id].src}" alt="${L[id].alt}" loading="lazy"><span>${RUNWAY_NAMES[id]}</span>`;ring.appendChild(p);
+  p.style.background=BG(id);p.innerHTML=`<img src="${L[id].src}" srcset="${SS(id)}" sizes="340px" alt="${L[id].alt}" loading="lazy"><span>${RUNWAY_NAMES[id]}</span>`;ring.appendChild(p);
 });
 sizePanels();addEventListener('resize',sizePanels);
 let rot=0,vel=.12,drag=false,lx=0,vis=false;
@@ -529,6 +545,8 @@ stage.addEventListener('wheel',e=>{if(Math.abs(e.deltaX)>Math.abs(e.deltaY)){e.p
 })();
 
 /* ---------- spread parallax ---------- */
+document.querySelectorAll('.spread figure[data-look]').forEach(f=>{const id=+f.dataset.look,im=f.querySelector('img');
+  im.srcset=SS(id);im.sizes='(max-width:720px) 70vw, 34vw';f.style.background=BG(id)});
 const pf=[...document.querySelectorAll('.spread figure')];
 let ticking=false;
 function par(){
@@ -541,16 +559,35 @@ addEventListener('scroll',()=>{if(!ticking){ticking=true;requestAnimationFrame(p
 
 /* ---------- contact sheet ---------- */
 const grid=$('#grid'),lb=$('#lb'),lbImg=lb.querySelector('img'),lbCap=$('#lbcap');
-let lbIdx=0,lbOpener=null,lbAt=0;
-function showLB(i){lbIdx=(i+ORDER.length)%ORDER.length;const id=ORDER[lbIdx];
-  lbImg.src=L[id].src;lbImg.alt=L[id].alt;lbCap.textContent=RUNWAY_NAMES[id]+'  \u00b7  '+(lbIdx+1)+' / '+ORDER.length}
+let lbIdx=0,lbOpener=null,lbAt=0,lbZ=false,showT=null,swipedAt=0,px=0,py=0;
+const strip=$('#lbstrip');
+ORDER.forEach((id,i)=>{const b=document.createElement('button');b.setAttribute('aria-label',RUNWAY_NAMES[id]);
+  b.innerHTML=`<img src="assets/looks/look-${id}-s.webp" alt="">`;b.onclick=e=>{e.stopPropagation();showLB(i)};strip.appendChild(b)});
+function zoom(on,e){lbZ=on;lbImg.classList.toggle('z',on);
+  if(on&&e){const x=Math.min(100,Math.max(0,(e.clientX-lbImg.offsetLeft)/lbImg.offsetWidth*100)),y=Math.min(100,Math.max(0,(e.clientY-lbImg.offsetTop)/lbImg.offsetHeight*100));
+    lbImg.style.transformOrigin=x+'% '+y+'%'}}
+function showLB(i){lbIdx=(i+ORDER.length)%ORDER.length;const id=ORDER[lbIdx];zoom(false);
+  lbImg.src=L[id].src;lbImg.srcset=SS(id);lbImg.sizes='100vw';lbImg.alt=L[id].alt;
+  lbCap.textContent=RUNWAY_NAMES[id]+'  \u00b7  '+(lbIdx+1)+' / '+ORDER.length;
+  [...strip.children].forEach((b,k)=>b.classList.toggle('cur',k===lbIdx));strip.children[lbIdx].scrollIntoView({inline:'center',block:'nearest'});
+  [1,-1].forEach(d=>{new Image().src=`assets/looks/look-${ORDER[(lbIdx+d+ORDER.length)%ORDER.length]}.webp`})}     /* warm the neighbours */
+function playShow(on){clearInterval(showT);showT=null;$('#lbplay').textContent=on?'Pause show':'Play show';
+  if(on){showT=setInterval(()=>showLB(lbIdx+1),3200);try{lb.requestFullscreen&&lb.requestFullscreen().catch(()=>{})}catch(e){}}
+  else try{document.fullscreenElement&&document.exitFullscreen()}catch(e){}}
 function openLB(id,opener){lbOpener=opener||document.activeElement;showLB(ORDER.indexOf(+id));lb.classList.add('on');lbAt=performance.now();$('#lbx').focus({preventScroll:true})}
-function closeLB(){if(!lb.classList.contains('on'))return;lb.classList.remove('on');
+function closeLB(){if(!lb.classList.contains('on'))return;playShow(false);lb.classList.remove('on');
   if(lbOpener&&lbOpener.focus)lbOpener.focus({preventScroll:true});lbOpener=null}
-lb.onclick=()=>{if(performance.now()-lbAt>350)closeLB()};     /* ignore ghost clicks right after opening */
+lb.onclick=()=>{if(performance.now()-lbAt>350)closeLB()};     /* backdrop closes; ignores ghost clicks right after opening */
 $('#lbx').onclick=e=>{e.stopPropagation();closeLB()};
 $('#lbp').onclick=e=>{e.stopPropagation();showLB(lbIdx-1)};
 $('#lbf').onclick=e=>{e.stopPropagation();showLB(lbIdx+1)};
+$('#lbplay').onclick=e=>{e.stopPropagation();playShow(!showT)};
+$('#showbtn').onclick=e=>{openLB(ORDER[0],e.currentTarget);playShow(true)};
+lbImg.addEventListener('click',e=>{e.stopPropagation();if(performance.now()-swipedAt<300||performance.now()-lbAt<350)return;zoom(!lbZ,e)});   /* tap/click to zoom */
+lbImg.addEventListener('pointermove',e=>{if(lbZ)zoom(true,e)});                                                                              /* move or drag to pan */
+lb.addEventListener('pointerdown',e=>{px=e.clientX;py=e.clientY});
+lb.addEventListener('pointerup',e=>{const dx=e.clientX-px,dy=e.clientY-py;      /* swipe between looks */
+  if(!lbZ&&Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5){swipedAt=performance.now();showLB(lbIdx+(dx<0?1:-1))}});
 /* make a figure behave like a button: click, Enter and Space all enlarge it */
 function activate(el,id){
   el.tabIndex=0;el.setAttribute('role','button');el.setAttribute('aria-label','Enlarge: '+RUNWAY_NAMES[id]);
@@ -559,7 +596,7 @@ function activate(el,id){
 }
 ORDER.forEach(id=>{
   const f=document.createElement('figure');
-  f.innerHTML=`<img src="${L[id].src}" alt="${L[id].alt}" loading="lazy"><figcaption>${RUNWAY_NAMES[id]}</figcaption>`;
+  f.style.background=BG(id);f.innerHTML=`<img src="${L[id].src}" srcset="${SS(id)}" sizes="(max-width:720px) 92vw, 33vw" alt="${L[id].alt}" loading="lazy"><figcaption>${RUNWAY_NAMES[id]}</figcaption>`;
   activate(f,id);grid.appendChild(f);
 });
 document.querySelectorAll('.spread figure[data-look]').forEach(f=>activate(f,+f.dataset.look));
@@ -571,7 +608,7 @@ addEventListener('keydown',e=>{
     if(e.key==='Escape')closeLB();
     else if(e.key==='ArrowRight')showLB(lbIdx+1);
     else if(e.key==='ArrowLeft')showLB(lbIdx-1);
-    else if(e.key==='Tab'){const f=[$('#lbp'),$('#lbx'),$('#lbf')],i=f.indexOf(document.activeElement);
+    else if(e.key==='Tab'){const f=[$('#lbplay'),$('#lbp'),$('#lbx'),$('#lbf')],i=f.indexOf(document.activeElement);
       e.preventDefault();f[(i+(e.shiftKey?-1:1)+f.length)%f.length].focus()}
     return;
   }
