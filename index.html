@@ -38,7 +38,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 /* ================= gate ================= */
 #gate{position:fixed;inset:0;z-index:100;display:grid;place-items:center;text-align:center;overflow:hidden;
   background:radial-gradient(110% 80% at 50% 110%,#5a1633 0%,var(--ink) 62%);transition:opacity .9s ease,visibility .9s}
-#gate.gone{opacity:0;visibility:hidden}
+#gate.gone{opacity:0;visibility:hidden;pointer-events:none}
 #gate .mast{font-family:var(--serif);font-weight:900;font-size:clamp(5rem,27vw,22rem);line-height:.8;letter-spacing:-.045em;
   background:linear-gradient(180deg,var(--bone) 30%,var(--blush) 70%,var(--garnet));-webkit-background-clip:text;background-clip:text;color:transparent;
   animation:mastIn 1.6s cubic-bezier(.2,.8,.2,1) both}
@@ -154,9 +154,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 /* hud */
 .hud{position:absolute;z-index:12;left:0;right:0;bottom:calc(var(--bar) + .7rem);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(1rem,4.5vw,4rem);gap:1rem}
 .ticks{display:flex;gap:.35rem;flex:1;max-width:24rem}
-.ticks button{flex:1;height:18px;position:relative}
-.ticks button::before{content:"";position:absolute;left:0;right:0;top:8px;height:2px;background:rgba(246,237,232,.28)}
-.ticks button i{position:absolute;left:0;top:8px;height:2px;width:0;background:var(--blush)}
+.ticks button{flex:1;height:28px;position:relative}
+.ticks button::before{content:"";position:absolute;left:0;right:0;top:13px;height:2px;background:rgba(246,237,232,.28)}
+.ticks button i{position:absolute;left:0;top:13px;height:2px;width:0;background:var(--blush)}
 .ticks button.done i{width:100%}
 .ticks button.cur i{animation:fill var(--dur) linear forwards}
 @keyframes fill{to{width:100%}}
@@ -165,6 +165,16 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .ctl button:hover{border-color:var(--blush)}
 .top{position:absolute;z-index:12;top:calc(var(--bar) + .7rem);left:clamp(1rem,4.5vw,4rem);right:clamp(1rem,4.5vw,4rem);display:flex;justify-content:space-between;font-size:.82rem;letter-spacing:.1em;color:rgba(246,237,232,.85)}
 .top a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(246,237,232,.35)}
+#film.paused .scene.on .fg img,#film.paused .ticks .cur i{animation-play-state:paused}
+@media (max-width:720px){
+  .hud{flex-wrap:wrap;row-gap:.25rem;bottom:calc(var(--bar) + .5rem)}
+  .ticks{flex:1 1 100%;max-width:none}
+  .ctl{flex:1 1 100%;flex-wrap:nowrap;justify-content:space-between}
+  .ctl button{flex:1;padding:.6rem .3rem;white-space:nowrap}
+  .top span{display:none}.top{justify-content:flex-end}
+  .cap,.issue{bottom:6.4rem}
+  .masthead{top:4vh}
+}
 
 /* ================= runway ================= */
 #runway{position:relative;padding:14vh 0 10vh;background:linear-gradient(180deg,#000,var(--ink) 16%,var(--wine) 100%);overflow:hidden}
@@ -187,6 +197,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .spread figure{position:relative;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5)}
 .spread figure img{width:100%;height:100%;object-fit:cover;display:block;transform:translateY(var(--py,0px)) scale(1.12)}
 .spread figcaption{position:absolute;left:.9rem;bottom:.7rem;font-family:var(--serif);font-style:italic;font-size:1.1rem;text-shadow:0 2px 12px rgba(0,0,0,.8)}
+.spread .t,.spread .q{pointer-events:none}
+.spread figure[data-look]{cursor:zoom-in}
 .pg{font-family:var(--serif);font-weight:900;font-size:clamp(6rem,22vw,18rem);line-height:.8;letter-spacing:-.05em;color:transparent;-webkit-text-stroke:1.5px rgba(246,237,232,.4);pointer-events:none}
 .s1{background:var(--ink)}
 .s1 .a{grid-column:1/6;grid-row:1/9}.s1 .b{grid-column:8/12;grid-row:4/11}
@@ -215,7 +227,14 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .grid figcaption{position:absolute;left:.8rem;bottom:.6rem;font-family:var(--serif);font-style:italic;text-shadow:0 2px 10px rgba(0,0,0,.8)}
 #lb{position:fixed;inset:0;z-index:200;background:rgba(10,3,7,.95);display:none;place-items:center;cursor:zoom-out}
 #lb.on{display:grid}
-#lb img{max-width:94vw;max-height:92svh;box-shadow:0 30px 100px #000}
+#lb img{max-width:min(94vw,1100px);max-height:84svh;box-shadow:0 30px 100px #000}
+#lb .lbcap{position:absolute;left:0;right:0;bottom:1.1rem;text-align:center;font-family:var(--serif);font-style:italic;font-size:1.1rem;pointer-events:none;text-shadow:0 2px 12px #000}
+#lb button{position:absolute;z-index:2;padding:.6rem 1rem;border:1px solid rgba(246,237,232,.35);border-radius:999px;background:rgba(18,6,11,.6);font-size:.9rem;letter-spacing:.06em;cursor:pointer}
+#lb button:hover{border-color:var(--blush)}
+#lb .lbx{top:max(1rem,env(safe-area-inset-top));right:1rem}
+#lb .lbn{top:50%;transform:translateY(-50%);font-size:1.6rem;line-height:1;padding:.5rem .95rem}
+#lb .lbp{left:.6rem}#lb .lbf{right:.6rem}
+.stage3d:focus-visible{outline-offset:-4px}
 footer{padding:3rem 1.5rem;text-align:center;color:#9a7f8a;font-size:.85rem;letter-spacing:.08em;background:var(--ink)}
 
 /* record mode (used to render the mp4) */
@@ -244,7 +263,7 @@ body.rec #film{height:100vh}
   <div class="leak"></div><div class="vig"></div><div class="grain"></div><div class="flash" id="flash"></div>
   <div class="top"><span>Dessa &mdash; Afterglow</span><a href="#runway">Enter the runway</a></div>
   <div class="hud">
-    <div class="ticks" id="ticks" role="tablist" aria-label="Scenes"></div>
+    <div class="ticks" id="ticks" role="group" aria-label="Scenes"></div>
     <div class="ctl">
       <button id="prev" aria-label="Previous scene">Prev</button>
       <button id="pause" aria-label="Pause film">Pause</button>
@@ -259,26 +278,26 @@ body.rec #film{height:100vh}
     <h2>The runway</h2>
     <p>Drag, swipe or scroll sideways to turn the ring.</p>
   </header>
-  <div class="stage3d" id="stage3d"><div class="floor"></div><div class="ring" id="ring"></div></div>
+  <div class="stage3d" id="stage3d" tabindex="0" aria-label="3D runway. Left and right arrows turn the ring, Enter enlarges the look in front."><div class="floor"></div><div class="ring" id="ring"></div></div>
   <p class="hint">Eleven looks, one turn</p>
 </section>
 
 <section class="spread s1" aria-label="Spread one">
-  <figure class="a" data-speed=".06"><img src="assets/looks/look-2.jpg" alt="Copper drape with long curls" loading="lazy"><figcaption>Copper drape</figcaption></figure>
+  <figure data-look="2" class="a" data-speed=".06"><img src="assets/looks/look-2.jpg" alt="Copper drape with long curls" loading="lazy"><figcaption>Copper drape</figcaption></figure>
   <div class="t"><div class="pg">01</div></div>
-  <figure class="b" data-speed="-.05"><img src="assets/looks/look-1.jpg" alt="Black waistcoat and white shirt" loading="lazy"><figcaption>The tailored black</figcaption></figure>
+  <figure data-look="1" class="b" data-speed="-.05"><img src="assets/looks/look-1.jpg" alt="Black waistcoat and white shirt" loading="lazy"><figcaption>The tailored black</figcaption></figure>
   <p class="q">Tailored, then draped.<br>Two ways to arrive.</p>
 </section>
 <section class="spread s2" aria-label="Spread two">
-  <figure class="a" data-speed=".05"><img src="assets/looks/look-7.jpg" alt="Embroidered maroon kurta" loading="lazy"><figcaption>Embroidered maroon</figcaption></figure>
-  <figure class="b" data-speed="-.07"><img src="assets/looks/look-11.jpg" alt="Black brocade dress" loading="lazy"><figcaption>Black brocade</figcaption></figure>
-  <figure class="c" data-speed=".04"><img src="assets/looks/look-4.jpg" alt="Garnet dress and wide-brim hat" loading="lazy"><figcaption>Garnet, cut close</figcaption></figure>
+  <figure data-look="7" class="a" data-speed=".05"><img src="assets/looks/look-7.jpg" alt="Embroidered maroon kurta" loading="lazy"><figcaption>Embroidered maroon</figcaption></figure>
+  <figure data-look="11" class="b" data-speed="-.07"><img src="assets/looks/look-11.jpg" alt="Black brocade dress" loading="lazy"><figcaption>Black brocade</figcaption></figure>
+  <figure data-look="4" class="c" data-speed=".04"><img src="assets/looks/look-4.jpg" alt="Garnet dress and wide-brim hat" loading="lazy"><figcaption>Garnet, cut close</figcaption></figure>
   <div class="t"><div class="pg">02</div></div>
 </section>
 <section class="spread s3" aria-label="Spread three">
-  <figure class="a" data-speed="-.05"><img src="assets/looks/look-9.jpg" alt="White drape and glasses" loading="lazy"><figcaption>White, folded</figcaption></figure>
-  <figure class="b" data-speed=".06"><img src="assets/looks/look-3.jpg" alt="Black denim and sunglasses" loading="lazy"><figcaption>Denim after dark</figcaption></figure>
-  <figure class="c" data-speed="-.04"><img src="assets/looks/look-8.jpg" alt="Asleep on the floor with a teddy bear" loading="lazy"><figcaption>The quiet hour</figcaption></figure>
+  <figure data-look="9" class="a" data-speed="-.05"><img src="assets/looks/look-9.jpg" alt="White drape and glasses" loading="lazy"><figcaption>White, folded</figcaption></figure>
+  <figure data-look="3" class="b" data-speed=".06"><img src="assets/looks/look-3.jpg" alt="Black denim and sunglasses" loading="lazy"><figcaption>Denim after dark</figcaption></figure>
+  <figure data-look="8" class="c" data-speed="-.04"><img src="assets/looks/look-8.jpg" alt="Asleep on the floor with a teddy bear" loading="lazy"><figcaption>The quiet hour</figcaption></figure>
   <div class="t"><div class="pg">03</div></div>
 </section>
 
@@ -288,7 +307,13 @@ body.rec #film{height:100vh}
 </section>
 </main>
 
-<div id="lb" role="dialog" aria-label="Enlarged look"><img alt=""></div>
+<div id="lb" role="dialog" aria-modal="true" aria-label="Enlarged look">
+  <button class="lbx" id="lbx" aria-label="Close">Close</button>
+  <button class="lbn lbp" id="lbp" aria-label="Previous look">&lsaquo;</button>
+  <img alt="">
+  <button class="lbn lbf" id="lbf" aria-label="Next look">&rsaquo;</button>
+  <div class="lbcap" id="lbcap" aria-live="polite"></div>
+</div>
 <footer>Dessa &mdash; Afterglow &middot; <a href="video/dessa-montage.mp4" style="color:inherit">Watch the vertical cut</a></footer>
 <audio id="track" src="assets/track.mp3" loop preload="auto"></audio>
 
@@ -364,7 +389,7 @@ SCENES.forEach((s,i)=>{
   b.onclick=()=>{go(i)};ticks.appendChild(b);
 });
 const scenes=[...document.querySelectorAll('.scene')],tb=[...ticks.children];
-let cur=-1,timer=null,paused=false,finishedOnce=false;
+let cur=-1,timer=null,paused=false,t0=0,remain=0;
 const ALL_TR=['cube','flip','glitch','punch','whip','shatter','spin'];
 
 function go(n){
@@ -383,17 +408,18 @@ function go(n){
   cur=n;
   $('#flash').classList.remove('pop');void $('#flash').offsetWidth;$('#flash').classList.add('pop');
   film.style.setProperty('--dur',s.dur+'ms');
-  tb.forEach((b,i)=>{b.classList.remove('cur','done');if(i<n)b.classList.add('done');if(i===n){void b.offsetWidth;b.classList.add('cur')}});
-  clearTimeout(timer);
+  tb.forEach((b,i)=>{b.classList.remove('cur','done');if(i<n)b.classList.add('done');if(i===n){void b.offsetWidth;b.classList.add('cur')}b.setAttribute('aria-current',i===n?'step':'false')});
+  clearTimeout(timer);t0=performance.now();remain=s.dur;
   if(!paused&&!DET)timer=setTimeout(()=>go(n+1),s.dur);
 }
 $('#next').onclick=()=>go(cur+1);$('#prev').onclick=()=>go(cur-1);
 $('#pause').onclick=e=>{
-  paused=!paused;e.target.textContent=paused?'Play':'Pause';
-  document.querySelectorAll('.scene.on img,.ticks .cur i').forEach(el=>el.style.animationPlayState=paused?'paused':'running');
-  if(paused)clearTimeout(timer);else go(cur);
+  const b=e.currentTarget;paused=!paused;b.textContent=paused?'Play':'Pause';b.setAttribute('aria-pressed',paused);
+  film.classList.toggle('paused',paused);      /* a class, not inline styles, so nothing is left frozen on other scenes */
+  clearTimeout(timer);
+  if(paused)remain=Math.max(400,remain-(performance.now()-t0));
+  else{t0=performance.now();timer=setTimeout(()=>go(cur+1),remain)}
 };
-addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(cur+1);if(e.key==='ArrowLeft')go(cur-1);if(e.key==='Escape')lb.classList.remove('on')});
 
 /* ---------- audio + beat ---------- */
 const audio=$('#track');let actx,analyser,data,analyserOn=false;
@@ -428,9 +454,10 @@ function startSound(){
 }
 $('#enter').onclick=()=>{
   $('#gate').classList.add('gone');
-  startSound();
+  try{startSound()}catch(e){}       /* still inside the tap, so iOS/Safari allow audio */
   go(0);
 };
+try{$('#enter').focus({preventScroll:true})}catch(e){}
 audio.addEventListener('error',()=>{notice('The song could not be loaded from '+audio.currentSrc+'. Check that assets/track.mp3 was deployed.')});
 $('#mute').onclick=e=>{if(audio.paused){startSound();return}audio.muted=!audio.muted;e.target.textContent=audio.muted?'Sound off':'Sound on'};
 document.addEventListener('visibilitychange',()=>{if(document.hidden)audio.pause();else if($('#gate').classList.contains('gone')&&!audio.muted)audio.play().catch(()=>{})});
@@ -445,15 +472,26 @@ function sizePanels(){
   ring.style.setProperty('--w',w+'px');ring.style.setProperty('--h',h+'px');ring.style.setProperty('--R',R+'px');
 }
 ORDER.forEach((id,i)=>{
-  const p=document.createElement('div');p.className='panel';p.style.setProperty('--i',i);
+  const p=document.createElement('div');p.className='panel';p.dataset.look=id;p.style.setProperty('--i',i);
   p.innerHTML=`<img src="${L[id].src}" alt="${L[id].alt}" loading="lazy"><span>${RUNWAY_NAMES[id]}</span>`;ring.appendChild(p);
 });
 sizePanels();addEventListener('resize',sizePanels);
 let rot=0,vel=.12,drag=false,lx=0,vis=false;
 new IntersectionObserver(([e])=>vis=e.isIntersecting,{threshold:.1}).observe(stage);
-stage.addEventListener('pointerdown',e=>{drag=true;lx=e.clientX;stage.setPointerCapture(e.pointerId)});
-stage.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-lx;lx=e.clientX;rot+=dx*.35;vel=dx*.35});
-['pointerup','pointercancel'].forEach(t=>stage.addEventListener(t,()=>drag=false));
+let downPanel=null,tapPanel=null,moved=0;
+stage.addEventListener('pointerdown',e=>{drag=true;lx=e.clientX;moved=0;tapPanel=null;downPanel=e.target.closest('.panel');stage.setPointerCapture(e.pointerId)});
+stage.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-lx;lx=e.clientX;moved+=Math.abs(dx);rot+=dx*.35;vel=dx*.35});
+['pointerup','pointercancel'].forEach(t=>stage.addEventListener(t,()=>{
+  tapPanel=(t==='pointerup'&&drag&&moved<6)?downPanel:null;     /* a tap, not a drag */
+  drag=false;downPanel=null}));
+/* open on the click that follows the tap, not on pointerup: otherwise the browser's synthesized
+   click lands on the freshly-opened lightbox and closes it again on touch screens */
+stage.addEventListener('click',()=>{if(tapPanel){const p=tapPanel;tapPanel=null;openLB(p.dataset.look,p)}});
+stage.addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft'){e.preventDefault();rot+=step}
+  else if(e.key==='ArrowRight'){e.preventDefault();rot-=step}
+  else if(e.key==='Enter'||e.key===' '){e.preventDefault();const i=((Math.round(-rot/step)%N)+N)%N;openLB(ORDER[i],stage)}
+});
 stage.addEventListener('wheel',e=>{if(Math.abs(e.deltaX)>Math.abs(e.deltaY)){e.preventDefault();rot-=e.deltaX*.2}},{passive:false});
 (function spin(){
   if(vis){if(!drag){rot+=vel;vel+=(.12-vel)*.02}ring.style.setProperty('--rot',rot+'deg')}
@@ -472,13 +510,45 @@ function par(){
 addEventListener('scroll',()=>{if(!ticking){ticking=true;requestAnimationFrame(par)}},{passive:true});par();
 
 /* ---------- contact sheet ---------- */
-const grid=$('#grid'),lb=$('#lb');
+const grid=$('#grid'),lb=$('#lb'),lbImg=lb.querySelector('img'),lbCap=$('#lbcap');
+let lbIdx=0,lbOpener=null,lbAt=0;
+function showLB(i){lbIdx=(i+ORDER.length)%ORDER.length;const id=ORDER[lbIdx];
+  lbImg.src=L[id].src;lbImg.alt=L[id].alt;lbCap.textContent=RUNWAY_NAMES[id]+'  \u00b7  '+(lbIdx+1)+' / '+ORDER.length}
+function openLB(id,opener){lbOpener=opener||document.activeElement;showLB(ORDER.indexOf(+id));lb.classList.add('on');lbAt=performance.now();$('#lbx').focus({preventScroll:true})}
+function closeLB(){if(!lb.classList.contains('on'))return;lb.classList.remove('on');
+  if(lbOpener&&lbOpener.focus)lbOpener.focus({preventScroll:true});lbOpener=null}
+lb.onclick=()=>{if(performance.now()-lbAt>350)closeLB()};     /* ignore ghost clicks right after opening */
+$('#lbx').onclick=e=>{e.stopPropagation();closeLB()};
+$('#lbp').onclick=e=>{e.stopPropagation();showLB(lbIdx-1)};
+$('#lbf').onclick=e=>{e.stopPropagation();showLB(lbIdx+1)};
+/* make a figure behave like a button: click, Enter and Space all enlarge it */
+function activate(el,id){
+  el.tabIndex=0;el.setAttribute('role','button');el.setAttribute('aria-label','Enlarge: '+RUNWAY_NAMES[id]);
+  el.addEventListener('click',()=>openLB(id,el));
+  el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openLB(id,el)}});
+}
 ORDER.forEach(id=>{
   const f=document.createElement('figure');
   f.innerHTML=`<img src="${L[id].src}" alt="${L[id].alt}" loading="lazy"><figcaption>${RUNWAY_NAMES[id]}</figcaption>`;
-  f.onclick=()=>{lb.querySelector('img').src=L[id].src;lb.classList.add('on')};grid.appendChild(f);
+  activate(f,id);grid.appendChild(f);
 });
-lb.onclick=()=>lb.classList.remove('on');
+document.querySelectorAll('.spread figure[data-look]').forEach(f=>activate(f,+f.dataset.look));
+
+/* ---------- keyboard ---------- */
+let filmVis=true;new IntersectionObserver(([e])=>filmVis=e.isIntersecting,{threshold:.3}).observe(film);
+addEventListener('keydown',e=>{
+  if(lb.classList.contains('on')){
+    if(e.key==='Escape')closeLB();
+    else if(e.key==='ArrowRight')showLB(lbIdx+1);
+    else if(e.key==='ArrowLeft')showLB(lbIdx-1);
+    else if(e.key==='Tab'){const f=[$('#lbp'),$('#lbx'),$('#lbf')],i=f.indexOf(document.activeElement);
+      e.preventDefault();f[(i+(e.shiftKey?-1:1)+f.length)%f.length].focus()}
+    return;
+  }
+  if(REC||!$('#gate').classList.contains('gone')||!filmVis)return;      /* no scene changes behind the gate or off-screen */
+  if(e.target.closest&&e.target.closest('#stage3d'))return;
+  if(e.key==='ArrowRight')go(cur+1);if(e.key==='ArrowLeft')go(cur-1);
+});
 
 /* ---------- record mode: deterministic frame stepping ---------- */
 if(REC){
