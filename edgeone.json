@@ -1,0 +1,10 @@
+{
+  "name": "dessa-afterglow",
+  "buildCommand": "node build.mjs",
+  "outputDirectory": "./dist",
+  "nodeVersion": "20.18.0",
+  "headers": [
+    { "source": "/assets/*", "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }] },
+    { "source": "/*.mp3", "headers": [{ "key": "Accept-Ranges", "value": "bytes" }] }
+  ]
+}

@@ -2,9 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<script>
+/* Resolve every relative asset (images, audio) against the folder this page lives in,
+   even when hosted at a path with no trailing slash (e.g. /dessa-runway). */
+(function(){try{var u=new URL(location.href);u.search='';u.hash='';var p=u.pathname;
+  if(p.charAt(p.length-1)!=='/'){var last=p.split('/').pop();p=last.indexOf('.')>-1?p.slice(0,p.lastIndexOf('/')+1):p+'/'}
+  u.pathname=p;var b=document.createElement('base');b.href=u.href;document.head.appendChild(b)}catch(e){}})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Dessa — The Issue</title>
-<meta name="description" content="Dessa: a cinematic magazine montage in eleven looks.">
+<title>Dessa — Afterglow</title>
+<meta name="description" content="Dessa — Afterglow: a cinematic fashion montage in eleven looks.">
 <meta name="theme-color" content="#12060b">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -227,15 +234,15 @@ body.rec #film{height:100vh}
 <div id="gate">
   <div>
     <div class="mast">Dessa</div>
-    <p>The issue, in eleven looks. Sound on.</p>
-    <button id="enter">Open the issue</button>
+    <p>Afterglow: eleven looks, one evening. Sound on.</p>
+    <button id="enter">Enter Afterglow</button>
   </div>
 </div>
 
 <main>
 <section id="film" class="letter" aria-label="Montage film">
   <div class="leak"></div><div class="vig"></div><div class="grain"></div><div class="flash" id="flash"></div>
-  <div class="top"><span>Dessa</span><a href="#runway">Enter the runway</a></div>
+  <div class="top"><span>Dessa &mdash; Afterglow</span><a href="#runway">Enter the runway</a></div>
   <div class="hud">
     <div class="ticks" id="ticks" role="tablist" aria-label="Scenes"></div>
     <div class="ctl">
@@ -282,7 +289,7 @@ body.rec #film{height:100vh}
 </main>
 
 <div id="lb" role="dialog" aria-label="Enlarged look"><img alt=""></div>
-<footer>Dessa</footer>
+<footer>Dessa &mdash; Afterglow &middot; <a href="video/dessa-montage.mp4" style="color:inherit">Watch the vertical cut</a></footer>
 <audio id="track" src="assets/track.mp3" loop preload="auto"></audio>
 
 <script>
@@ -290,6 +297,16 @@ const $=s=>document.querySelector(s);
 const REC=new URLSearchParams(location.search).has('record');
 const DET=REC;
 if(REC)document.body.classList.add('rec');
+
+
+/* ---------- asset diagnostics ---------- */
+function notice(msg){let n=$('#notice');if(!n){n=document.createElement('div');n.id='notice';
+  n.style.cssText='position:fixed;left:1rem;right:1rem;bottom:1rem;z-index:300;padding:.8rem 1rem;background:#3a0f22;border:1px solid #f0b8b0;color:#f6ede8;font:14px/1.4 Jost,sans-serif;border-radius:10px';
+  n.onclick=()=>n.remove();document.body.appendChild(n)}n.textContent=msg+' (tap to dismiss)'}
+let imgFails=0;
+addEventListener('error',e=>{const t=e.target;if(!t||t.tagName!=='IMG')return;
+  if(!t.dataset.retry){t.dataset.retry='1';const u=t.src;t.src='';setTimeout(()=>t.src=u+(u.includes('?')?'&':'?')+'r='+Date.now(),400);return}
+  if(++imgFails===2)notice('Some pictures could not be loaded from '+new URL('assets/looks/',document.baseURI).href+'. Check that the assets folder was deployed.')},true);
 
 /* ---------- looks ---------- */
 const L={
@@ -311,14 +328,14 @@ const RUNWAY_NAMES={1:'The tailored black',2:'Copper drape',3:'Denim after dark'
 /* ---------- scene script ---------- */
 const SCENES=[
   {type:'cover',imgs:[2],tr:'punch',dur:3800},
-  {type:'single',imgs:[1],k:'The tailored issue',t:'Black, <em>cut sharp</em>',no:'01',tr:'cube',dur:3400},
+  {type:'single',imgs:[1],k:'The tailored edit',t:'Black, <em>cut sharp</em>',no:'01',tr:'cube',dur:3400},
   {type:'duo',imgs:[4,5],k:'Colour story',t:'Garnet <em>&amp; lace</em>',no:'02',tr:'whip',dur:3400},
   {type:'single',imgs:[3],k:'After dark',t:'Denim, <em>headphones</em>',no:'03',tr:'glitch',dur:3200},
   {type:'duo',imgs:[9,8],k:'Soft hours',t:'White, <em>then sleep</em>',no:'04',tr:'flip',dur:3400},
   {type:'single',imgs:[7],k:'Heritage',t:'Embroidered <em>maroon</em>',no:'05',tr:'shatter',dur:3300},
   {type:'single',imgs:[11],k:'Evening',t:'Black <em>brocade</em>',no:'06',tr:'spin',dur:3300},
   {type:'duo',imgs:[6,10],k:'Off duty',t:'Cap, <em>shades</em>',no:'07',tr:'cube',dur:3400},
-  {type:'quad',imgs:[9,2,4,11],k:'The issue',t:'Four <em>covers</em>',no:'08',tr:'punch',dur:3600},
+  {type:'quad',imgs:[9,2,4,11],k:'Afterglow',t:'Four <em>covers</em>',no:'08',tr:'punch',dur:3600},
   {type:'finale',imgs:[2],tr:'glitch',dur:3600}
 ];
 
@@ -331,7 +348,7 @@ SCENES.forEach((s,i)=>{
   if(s.type==='cover'){
     body=`<div class="frame L-single">${fig(s.imgs[0],0)}</div>
       <div class="type"><div class="masthead">Dessa</div>
-        <div class="lines"><b>ISSUE 01</b>Eleven looks.<br>One hour.</div>
+        <div class="lines"><b>AFTERGLOW</b>Eleven looks.<br>One evening.</div>
         <div class="issue">AUTUMN 2026<span class="barcode"></span></div></div>`;
   }else if(s.type==='finale'){
     body=`<div class="frame L-quad">${[9,4,11,7].map((id,j)=>fig(id,j)).join('')}</div><div class="finale"><h2>Dessa</h2></div>`;
@@ -379,30 +396,43 @@ $('#pause').onclick=e=>{
 addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(cur+1);if(e.key==='ArrowLeft')go(cur-1);if(e.key==='Escape')lb.classList.remove('on')});
 
 /* ---------- audio + beat ---------- */
-const audio=$('#track');let actx,analyser,data;
+const audio=$('#track');let actx,analyser,data,analyserOn=false;
+audio.volume=1;
 function setupAnalyser(){
+  /* Beat-reactive visuals are a bonus. Routing the element through Web Audio can silence it on
+     file:// and some iOS versions, so only do it on http(s), after playback has really started. */
+  if(analyserOn||!/^https?:$/.test(location.protocol)||/iP(hone|ad|od)/.test(navigator.userAgent))return;
   try{
     actx=new (window.AudioContext||window.webkitAudioContext)();
     const src=actx.createMediaElementSource(audio);
     analyser=actx.createAnalyser();analyser.fftSize=256;analyser.smoothingTimeConstant=.8;
     src.connect(analyser);analyser.connect(actx.destination);
+    actx.resume();analyserOn=true;
     data=new Uint8Array(analyser.frequencyBinCount);
-    const root=document.documentElement;let last=0;
+    const root=document.documentElement;
     (function tick(){
       analyser.getByteFrequencyData(data);
       let sum=0;for(let i=0;i<6;i++)sum+=data[i];
-      const v=Math.min(1,Math.max(0,(sum/6-110)/110));
-      root.style.setProperty('--beat',v.toFixed(3));
+      root.style.setProperty('--beat',Math.min(1,Math.max(0,(sum/6-110)/110)).toFixed(3));
       requestAnimationFrame(tick);
     })();
   }catch(e){}
 }
-$('#enter').onclick=async()=>{
+/* fallback pulse when the analyser isn't available */
+(function(){const root=document.documentElement,t0=performance.now();
+  (function p(){if(!analyserOn&&!audio.paused&&!REC){const t=(performance.now()-t0)/1000,ph=(t*2)%1;root.style.setProperty('--beat',Math.max(0,1-ph*3.2).toFixed(3))}requestAnimationFrame(p)})()})();
+function startSound(){
+  audio.muted=false;
+  const pr=audio.play();           /* called directly inside the tap so iOS/Safari allow it */
+  if(pr&&pr.then)pr.then(()=>{setupAnalyser();$('#mute').textContent='Sound on'}).catch(()=>{$('#mute').textContent='Tap for sound'});
+}
+$('#enter').onclick=()=>{
   $('#gate').classList.add('gone');
-  try{setupAnalyser();await actx?.resume();await audio.play()}catch(e){}
+  startSound();
   go(0);
 };
-$('#mute').onclick=e=>{audio.muted=!audio.muted;e.target.textContent=audio.muted?'Sound off':'Sound on'};
+audio.addEventListener('error',()=>{notice('The song could not be loaded from '+audio.currentSrc+'. Check that assets/track.mp3 was deployed.')});
+$('#mute').onclick=e=>{if(audio.paused){startSound();return}audio.muted=!audio.muted;e.target.textContent=audio.muted?'Sound off':'Sound on'};
 document.addEventListener('visibilitychange',()=>{if(document.hidden)audio.pause();else if($('#gate').classList.contains('gone')&&!audio.muted)audio.play().catch(()=>{})});
 
 /* ---------- 3D runway ---------- */

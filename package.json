@@ -1,0 +1,7 @@
+{
+  "name": "dessa-afterglow",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dessa — Afterglow: cinematic fashion montage",
+  "scripts": { "build": "node build.mjs", "start": "npx serve dist" }
+}
